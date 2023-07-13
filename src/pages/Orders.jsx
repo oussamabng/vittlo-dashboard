@@ -184,9 +184,9 @@ const Orders = () => {
       },
     });
 
-    setUsers(data?.getAllDeliveryUsers?.items);
-    setTotalPages(data?.getAllDeliveryUsers?.totalPages);
-    setCurrentPage(data?.getAllDeliveryUsers?.currentPage);
+    setUsers(data?.orders?.items);
+    setTotalPages(data?.orders?.totalPages);
+    setCurrentPage(data?.orders?.currentPage);
     setTotalCount(data?.orders?.totalCount);
   };
   return (

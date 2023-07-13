@@ -20,8 +20,8 @@ import { nprogress } from "@mantine/nprogress";
 import { useAuth } from "../hooks";
 
 import { client } from "../graphql";
-import { GET_ORDERS } from "../graphql/queries";
 import { CREATE_ORDER } from "../graphql/mutations/auth.mutation";
+import { GET_MISSIONS } from "../graphql/queries";
 
 const Missions = () => {
   const LIMIT = 5;
@@ -52,7 +52,7 @@ const Missions = () => {
 
   const fetchDeliveryUsers = async () => {
     const { data } = await client.query({
-      query: GET_ORDERS,
+      query: GET_MISSIONS,
       context: { accessToken: token },
       variables: {
         pagination: {
@@ -65,10 +65,10 @@ const Missions = () => {
       },
     });
 
-    setUsers(data?.orders?.items);
-    setTotalPages(data?.orders?.totalPages);
-    setCurrentPage(data?.orders?.currentPage);
-    setTotalCount(data?.orders?.totalCount);
+    setUsers(data?.paginatedMissions?.items);
+    setTotalPages(data?.paginatedMissions?.totalPages);
+    setCurrentPage(data?.paginatedMissions?.currentPage);
+    setTotalCount(data?.paginatedMissions?.totalCount);
   };
 
   useEffect(() => {
@@ -131,10 +131,10 @@ const Missions = () => {
       },
     });
 
-    setUsers(data?.getAllDeliveryUsers?.items);
-    setTotalPages(data?.getAllDeliveryUsers?.totalPages);
-    setCurrentPage(data?.getAllDeliveryUsers?.currentPage);
-    setTotalCount(data?.orders?.totalCount);
+    setUsers(data?.paginatedMissions?.items);
+    setTotalPages(data?.paginatedMissions?.totalPages);
+    setCurrentPage(data?.paginatedMissions?.currentPage);
+    setTotalCount(data?.paginatedMissions?.totalCount);
   };
   return (
     <Flex direction={"column"}>
@@ -229,7 +229,7 @@ const Missions = () => {
                   </Text>
                   <Group position="apart">
                     <Text weight={300} size={14} color="#404040">
-                      Delivery, Status, Nb Orders ...
+                      Adress, Status, Number of Orders ...
                     </Text>
                   </Group>
                 </div>
@@ -243,7 +243,7 @@ const Missions = () => {
                 }}
               >
                 <TextInput
-                  placeholder="Search"
+                  placeholder="Search by delivery email"
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   icon={<IconSearch />}

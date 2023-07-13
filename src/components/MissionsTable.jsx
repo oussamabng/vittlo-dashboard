@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   createStyles,
   Table,
-  Checkbox,
+  Timeline,
   ScrollArea,
   Group,
   Badge,
@@ -14,7 +14,7 @@ import {
   Modal,
   Button,
 } from "@mantine/core";
-import { IconEye } from "@tabler/icons-react";
+import { IconTruckDelivery } from "@tabler/icons-react";
 import { ActionIcon } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { nprogress } from "@mantine/nprogress";
@@ -23,6 +23,7 @@ import { useAuth } from "../hooks";
 
 import { client } from "../graphql";
 import { UPDATE_STATUS_DELIVERY } from "../graphql/mutations";
+import moment from "moment/moment";
 
 export function getDistanceValue(distance) {
   switch (distance) {
@@ -36,6 +37,23 @@ export function getDistanceValue(distance) {
       return 800;
     default:
       return "/";
+  }
+}
+
+export function descriptionTracking(status) {
+  switch (status) {
+    case "PENDING":
+      return "The mission was created by the agent of RL";
+    case "IN_PROGRESS":
+      return "The mission has reached a new place.";
+    case "OUT_FOR_DELIVERY":
+      return "The mission was taken by a delivery person who will start the trip.";
+    case "DELIVERED":
+      return "The mission was successfully finished by the delivery man.";
+    case "CANCELLED":
+      return "The mission was cancelled by the delivery man before starting.";
+    default:
+      return "";
   }
 }
 
@@ -103,43 +121,32 @@ export default function MissionsTable({
     return (
       <tr key={item.id} className={cx({ [classes.rowSelected]: selected })}>
         <td></td>
-        <td>
-          <Group spacing="sm">
-            <Text size="sm" weight={500}>
-              {item.productName}
-            </Text>
-          </Group>
-        </td>
-        <td>
-          <Box w={80}>
-            <Badge
-              w={"100%"}
-              color={`${
-                item?.status === "DELIVERED"
-                  ? "green"
-                  : item?.status === "PENDING"
-                  ? "orange"
-                  : "red"
-              }`}
-            >
-              {item.status}
-            </Badge>
-          </Box>
-        </td>
-        <td>{item.shippingAddress ?? "/"}</td>
+        <td>{item.startingAdress}</td>
+        <td>{item.endingAdress}</td>
 
-        <td>{item.destinationLat ?? "/"}</td>
-        <td>{item.destinationLong ?? "/"}</td>
-
-        <td className="font-bold">5</td>
+        <td>
+          <Badge
+            color={`${
+              item?.status === "DELIVERED"
+                ? "green"
+                : item?.status === "PENDING"
+                ? "orange"
+                : "red"
+            }`}
+          >
+            {item.status.replace(/_/g, " ")}
+          </Badge>
+        </td>
+        <td>{item.numberOfOrders}</td>
+        <td>{item.delivery ? item.delivery.email : "/"}</td>
         <td>
           <ActionIcon className="cursor-pointer">
-            <IconEye
-              color="green"
+            <IconTruckDelivery
+              color="red"
               size={20}
               onClick={() => {
-                setUserSelected(item);
-                openInfo();
+                setDataTracking(item?.tracking);
+                openTracking();
               }}
             />
           </ActionIcon>
@@ -147,6 +154,10 @@ export default function MissionsTable({
       </tr>
     );
   });
+
+  const [openedTracking, { open: openTracking, close: closeTracking }] =
+    useDisclosure(false);
+  const [dataTracking, setDataTracking] = useState();
 
   return (
     <ScrollArea>
@@ -235,16 +246,43 @@ export default function MissionsTable({
           </Button>
         </div>
       </Modal>
+      <Modal
+        centered
+        opened={openedTracking}
+        p="md"
+        onClose={() => {
+          setDataTracking(null);
+          closeTracking();
+        }}
+        title="Mission Tracking"
+      >
+        <Timeline
+          py={10}
+          active={dataTracking?.length - 1}
+          bulletSize={16}
+          lineWidth={2}
+        >
+          {dataTracking?.map((data, index) => (
+            <Timeline.Item key={index} title={data?.status.replace(/_/g, " ")}>
+              <Text color="dimmed" size="sm">
+                {descriptionTracking(data?.status)}
+              </Text>
+              <Text size="xs" mt={4}>
+                {moment(data?.createdAt).format("lll")}
+              </Text>
+            </Timeline.Item>
+          ))}
+        </Timeline>
+      </Modal>
       <Table miw={800} verticalSpacing="sm">
         <thead>
           <tr>
             <th style={{ width: rem(40) }}></th>
-            <th>Delivery responsible</th>
+            <th>Starting Adress</th>
+            <th>Starting Adress</th>
             <th>Status</th>
-            <th>Current Adress</th>
-            <th>Current Latitude</th>
-            <th>Current Longitude</th>
-            <th>Number of orders</th>
+            <th>Number Of Orders</th>
+            <th>Delivery</th>
             <th>Action</th>
           </tr>
         </thead>

@@ -5,14 +5,14 @@ import { ApolloClient, InMemoryCache } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 
 const wsLink = new WebSocketLink({
-  uri: "wss://http://localhost:8080/graphql",
+  uri: "wss://46.101.66.2:8080/graphql",
   options: {
     reconnect: true,
   },
 });
 
 const httpLink = new HttpLink({
-  uri: "http://localhost:8080/graphql",
+  uri: "http://46.101.66.2:8080/graphql",
 });
 
 const authLink = setContext((_, context) => {

@@ -73,3 +73,29 @@ export const GET_TRACKING_ORDER = gql`
     }
   }
 `;
+
+export const GET_MISSIONS = gql`
+  query PaginatedMissions($pagination: PaginationDto!, $search: SearchDto!) {
+    paginatedMissions(pagination: $pagination, search: $search) {
+      numberOfOrders
+      startingAdress
+      endingAdress
+      items {
+        id
+        startingAdress
+        endingAdress
+        numberOfOrders
+        status
+        delivery {
+          email
+        }
+        tracking {
+          id
+          status
+          currentPlace
+          createdAt
+        }
+      }
+    }
+  }
+`;
